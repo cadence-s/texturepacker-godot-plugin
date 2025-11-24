@@ -87,6 +87,19 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 			printerr("Failed to load image file: " + sheetFile)
 			return ERR_FILE_NOT_FOUND
 
+		if sheet.has("normalMap"):
+			var normalFile = source_file.get_base_dir()+"/"+sheet.normalMap
+			var normalImage = ResourceLoader.load(normalFile, "ImageTexture")
+			if not normalImage:
+				printerr("Failed to load image file: " + normalFile)
+				return ERR_FILE_NOT_FOUND
+			var combinedImage = CanvasTexture.new()
+			combinedImage.diffuse_texture = image
+			combinedImage.normal_texture = normalImage
+			var combinedFile = source_file.get_basename()+".tres"
+			ResourceSaver.save(combinedImage, combinedFile)
+			image = ResourceLoader.load(combinedFile)
+
 		create_atlas_textures(sheetFolder, sheet, image, r_gen_files)
 
 	delete_no_longer_existing_sprite_files(sheetFolder, r_gen_files)
